@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pressure Injury Daily Documentation – AIIMS Jodhpur</title>
+
+<style>
+:root { --border:#d9d9d9; }
+body { font-family: Arial, sans-serif; margin:0; background:#f6f7fb; }
+.wrap { max-width:900px; margin:auto; padding:14px; }
+.card { background:#fff; border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:12px; }
+h1 { font-size:18px; margin:0 0 6px; }
+h2 { font-size:15px; margin-bottom:8px; }
+label { font-size:13px; font-weight:bold; display:block; margin-top:8px; }
+select,input,textarea { width:100%; padding:8px; margin-top:4px; border:1px solid var(--border); border-radius:8px; }
+.row { display:flex; gap:8px; flex-wrap:wrap; }
+.pill { border:1px solid var(--border); border-radius:20px; padding:6px 10px; display:flex; gap:6px; align-items:center; }
+.hidden { display:none; }
+button { padding:8px 14px; border-radius:8px; border:1px solid var(--border); background:#111; color:#fff; cursor:pointer; }
+button.secondary { background:#fff; color:#111; }
+pre { background:#0b1020; color:#e6e6e6; padding:10px; border-radius:10px; font-size:12px; }
+.hapi { color:red; font-weight:bold; }
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<div class="card">
+<h1>Pressure Injury Documentation & Surveillance</h1>
+<p>AIIMS Jodhpur – Daily Nursing Form</p>
+</div>
+
+<form id="piForm">
+
+<!-- TOP INFO -->
+<div class="card">
+<h2>Shift & Time</h2>
+<label>Shift</label>
+<select id="shift" required>
+<option value="">Select</option>
+<option>Morning</option>
+<option>Evening</option>
+<option>Night</option>
+</select>
+
+<label>Date & Time (Auto)</label>
+<input type="text" id="autoDateTime" readonly>
+</div>
+
+<!-- SECTION 1 -->
+<div class="card">
+<h2>1) Patient Identification</h2>
+<label>Bed Number</label>
+<select id="bedNo" required></select>
+
+<label>Date of Admission</label>
+<input type="date" id="admissionDate" required>
+</div>
+
+<!-- SECTION 2 -->
+<div class="card">
+<h2>2) Pressure Injury Risk</h2>
+<div class="row">
+<label class="pill"><input type="radio" name="bradenRisk" value="High" required>High</label>
+<label class="pill"><input type="radio" name="bradenRisk" value="Moderate">Moderate</label>
+<label class="pill"><input type="radio" name="bradenRisk" value="Low">Low</label>
+</div>
+</div>
+
+<!-- SECTION 3 -->
+<div class="card">
+<h2>3) Prevention Measures</h2>
+
+<label>Air Mattress Provided</label>
+<div class="row">
+<label class="pill"><input type="radio" name="airMattress" value="Yes" required>Yes</label>
+<label class="pill"><input type="radio" name="airMattress" value="No">No</label>
+</div>
+
+<label>Repositioning Done</label>
+<div class="row">
+<label class="pill"><input type="radio" name="reposition" value="Yes" required>Yes</label>
+<label class="pill"><input type="radio" name="reposition" value="No">No</label>
+</div>
+
+<label>Repositioning As Per Schedule</label>
+<div class="row">
+<label class="pill"><input type="radio" name="schedule" value="Yes" required>Yes</label>
+<label class="pill"><input type="radio" name="schedule" value="No">No</label>
+</div>
+
+<label>Proper Weight Offloading Done</label>
+<div class="row">
+<label class="pill"><input type="radio" name="offload" value="Yes" required>Yes</label>
+<label class="pill"><input type="radio" name="offload" value="No">No</label>
+</div>
+
+</div>
+
+<!-- SECTION 4 -->
+<div class="card">
+<h2>4) Pressure Injury Status</h2>
+<div class="row">
+<label class="pill"><input type="radio" name="piPresent" value="Yes" required>Yes</label>
+<label class="pill"><input type="radio" name="piPresent" value="No">No</label>
+</div>
+</div>
+
+<div id="piDetails" class="card hidden">
+<label>Pressure Injury Developed</label>
+<div class="row">
+<label class="pill"><input type="radio" name="origin" value="Outside Hospital">Outside Hospital</label>
+<label class="pill"><input type="radio" name="origin" value="Within Hospital">Within Hospital</label>
+</div>
+
+<p id="hapiAlert" class="hidden hapi">⚠ Hospital-Acquired Pressure Injury</p>
+</div>
+
+<!-- SECTION 7 -->
+<div class="card">
+<h2>7) Documentation & Supervision</h2>
+<div class="row">
+<label class="pill"><input type="radio" name="doc" value="Yes" required>Documentation Done</label>
+<label class="pill"><input type="radio" name="doc" value="No">Not Done</label>
+</div>
+
+<label>Supervisor Name</label>
+<input type="text" id="supervisor" required>
+
+<label>Remarks</label>
+<textarea id="remarks"></textarea>
+</div>
+
+<!-- ACTIONS -->
+<div class="card">
+<button type="submit">Save / Generate JSON</button>
+<button type="button" class="secondary" id="csvBtn">Export CSV</button>
+<pre id="output" class="hidden"></pre>
+</div>
+
+</form>
+</div>
+
+<script>
+// auto datetime
+document.getElementById("autoDateTime").value = new Date().toLocaleString();
+
+// bed numbers
+const bedNo=document.getElementById("bedNo");
+for(let i=1;i<=35;i++){bedNo.innerHTML+=`<option>${i}</option>`;}
+
+document.addEventListener("change",e=>{
+if(e.target.name==="piPresent")
+document.getElementById("piDetails").classList.toggle("hidden",e.target.value!=="Yes");
+
+if(e.target.name==="origin")
+document.getElementById("hapiAlert").classList.toggle("hidden",e.target.value!=="Within Hospital");
+});
+
+let latest=null;
+
+document.getElementById("piForm").addEventListener("submit",e=>{
+e.preventDefault();
+latest={
+shift:shift.value,
+dateTime:autoDateTime.value,
+bed:bedNo.value,
+admission:admissionDate.value,
+braden:document.querySelector("input[name='bradenRisk']:checked")?.value,
+airMattress:document.querySelector("input[name='airMattress']:checked")?.value,
+reposition:document.querySelector("input[name='reposition']:checked")?.value,
+schedule:document.querySelector("input[name='schedule']:checked")?.value,
+offload:document.querySelector("input[name='offload']:checked")?.value,
+piPresent:document.querySelector("input[name='piPresent']:checked")?.value,
+origin:document.querySelector("input[name='origin']:checked")?.value,
+HAPI:(document.querySelector("input[name='origin']:checked")?.value==="Within Hospital")?"YES":"NO",
+documentation:document.querySelector("input[name='doc']:checked")?.value,
+supervisor:supervisor.value,
+remarks:remarks.value
+};
+output.textContent=JSON.stringify(latest,null,2);
+output.classList.remove("hidden");
+});
+
+document.getElementById("csvBtn").addEventListener("click",()=>{
+if(!latest){alert("Save first");return;}
+let csv=Object.entries(latest).map(([k,v])=>`${k},${v}`).join("\n");
+const a=document.createElement("a");
+a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+a.download="pressure_injury_daily.csv";
+a.click();
+});
+</script>
+</body>
+</html>
