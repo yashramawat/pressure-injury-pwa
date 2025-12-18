@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pressure Injury Daily Form</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#111111">
+
+  <style>
+    :root { --gap: 12px; --radius: 12px; --border: #d9d9d9; }
+    body { font-family: Arial, sans-serif; margin: 0; background:#f6f7fb; }
+    .wrap { max-width: 980px; margin: 24px auto; padding: 16px; }
+    .card { background:#fff; border:1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+    h1 { font-size: 18px; margin: 0 0 6px; }
+    .sub { color:#555; font-size: 13px; margin: 0 0 8px; }
+    h2 { font-size: 15px; margin: 0 0 10px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+    @media (max-width: 760px){ .grid { grid-template-columns: 1fr; } }
+    label { font-size: 13px; color:#222; display:block; margin-bottom: 6px; }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%; padding: 10px; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; box-sizing: border-box; background:#fff;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    .row { display:flex; gap: 10px; align-items:center; flex-wrap: wrap; }
+    .pill { display:inline-flex; gap: 8px; align-items:center; padding: 8px 10px; border:1px solid var(--border); border-radius: 999px; background:#fff; }
+    .muted { color:#666; font-size: 12px; }
+    .hidden { display:none; }
+    .divider { height:1px; background: #eee; margin: 10px 0; }
+    .btns { display:flex; gap: 10px; flex-wrap: wrap; }
+    button {
+      border: 1px solid var(--border);
+      background: #111; color: #fff;
+      padding: 10px 14px; border-radius: 10px; cursor:pointer; font-size: 14px;
+    }
+    button.secondary { background:#fff; color:#111; }
+    pre { background:#0b1020; color:#e6e6e6; padding: 12px; border-radius: 12px; overflow:auto; font-size: 12px; }
+    .topbar { display:flex; justify-content: space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="topbar">
+        <div>
+          <h1>Pressure Injury Documentation & Surveillance</h1>
+          <p class="sub">Offline daily form (PWA). For documentation/surveillance only.</p>
+        </div>
+        <button type="button" class="secondary" id="installBtn" style="display:none;">Install App</button>
+      </div>
+      <p class="muted">Tip: Open once on internet (first time), then it works offline.</p>
+    </div>
+
+    <form id="piForm">
+
+      <div class="card">
+        <h2>1) Patient Identification</h2>
+        <div class="grid">
+          <div>
+            <label for="bedNo">Bed Number</label>
+            <select id="bedNo" name="bedNo" required>
+              <option value="">Select bed</option>
+            </select>
+          </div>
+          <div>
+            <label for="admissionDate">Date of Admission</label>
+            <input type="date" id="admissionDate" name="admissionDate" required />
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>2) Pressure Injury Risk</h2>
+        <label>Braden Risk Category</label>
+        <div class="row">
+          <label class="pill"><input type="radio" name="bradenRisk" value="High" required /> High</label>
+          <label class="pill"><input type="radio" name="bradenRisk" value="Moderate" /> Moderate</label>
+          <label class="pill"><input type="radio" name="bradenRisk" value="Low" /> Low</label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>3) Prevention Measures (Documentation)</h2>
+
+        <div class="grid">
+          <div>
+            <label>Air Mattress Provided</label>
+            <div class="row">
+              <label class="pill"><input type="radio" name="airMattress" value="Yes" required /> Yes</label>
+              <label class="pill"><input type="radio" name="airMattress" value="No" /> No</label>
+            </div>
+
+            <div id="airReasonsBox" class="hidden" style="margin-top:10px;">
+              <label>If No, select reason(s)</label>
+              <div class="row">
+                <label class="pill"><input type="checkbox" name="airReasons" value="Not available" /> Not available</label>
+                <label class="pill"><input type="checkbox" name="airReasons" value="Patient unstable" /> Patient unstable</label>
+                <label class="pill"><input type="checkbox" name="airReasons" value="Short stay/observation" /> Short stay/observation</label>
+                <label class="pill"><input type="checkbox" name="airReasons" value="Other" /> Other</label>
+              </div>
+              <div style="margin-top:10px;">
+                <label for="airOther">If Other, specify</label>
+                <input type="text" id="airOther" name="airOther" />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label>Repositioning Done</label>
+            <div class="row">
+              <label class="pill"><input type="radio" name="repositionDone" value="Yes" required /> Yes</label>
+              <label class="pill"><input type="radio" name="repositionDone" value="No" /> No</label>
+            </div>
+            <div id="repoReasonBox" class="hidden" style="margin-top:10px;">
+              <label for="repoReason">If No, specify reason</label>
+              <input type="text" id="repoReason" name="repoReason" />
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="grid">
+          <div>
+            <label>Repositioning As Per Schedule</label>
+            <div class="row">
+              <label class="pill"><input type="radio" name="asPerSchedule" value="Yes" required /> Yes</label>
+              <label class="pill"><input type="radio" name="asPerSchedule" value="No" required /> No</label>
+            </div>
+          </div>
+          <div>
+            <label>Proper Weight Offloading Done</label>
+            <div class="row">
+              <label class="pill"><input type="radio" name="weightOffload" value="Yes" required /> Yes</label>
+              <label class="pill"><input type="radio" name="weightOffload" value="No" required /> No</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>4) Pressure Injury Status</h2>
+        <label>Bed Sore / Pressure Injury Present</label>
+        <div class="row">
+          <label class="pill"><input type="radio" name="piPresent" value="Yes" required /> Yes</label>
+          <label class="pill"><input type="radio" name="piPresent" value="No" required /> No</label>
+        </div>
+      </div>
+
+      <div id="piDetails" class="card hidden">
+        <h2>5) Origin & First Mention</h2>
+        <label>Pressure Injury Developed</label>
+        <div class="row">
+          <label class="pill"><input type="radio" name="piOrigin" value="Outside Hospital (Present on Admission)" /> Outside Hospital (Present on Admission)</label>
+          <label class="pill"><input type="radio" name="piOrigin" value="Within Hospital" /> Within Hospital</label>
+        </div>
+
+        <div id="firstMentionBox" class="hidden" style="margin-top:10px;">
+          <label for="firstMentionDate">If Within Hospital – Date of First Mention/Documentation</label>
+          <input type="date" id="firstMentionDate" name="firstMentionDate" />
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>6) Location & Stage</h2>
+        <label>Select location(s)</label>
+        <div class="row">
+          <label class="pill"><input type="checkbox" name="locations" value="Sacrum" /> Sacrum</label>
+          <label class="pill"><input type="checkbox" name="locations" value="Heel" /> Heel</label>
+          <label class="pill"><input type="checkbox" name="locations" value="Trochanter" /> Trochanter</label>
+          <label class="pill"><input type="checkbox" name="locations" value="Occiput" /> Occiput</label>
+          <label class="pill"><input type="checkbox" name="locations" value="Scapula" /> Scapula</label>
+          <label class="pill"><input type="checkbox" name="locations" value="Elbow" /> Elbow</label>
+          <label class="pill"><input type="checkbox" name="locations" value="Other" /> Other</label>
+        </div>
+
+        <div id="otherLocBox" class="hidden" style="margin-top:10px;">
+          <label for="otherLocation">If Other, specify</label>
+          <input type="text" id="otherLocation" name="otherLocation" />
+        </div>
+
+        <div style="margin-top:12px;">
+          <p class="muted">Choose stage for each selected location:</p>
+          <div id="stageArea"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>7) Documentation & Supervision</h2>
+        <div class="grid">
+          <div>
+            <label>Documentation Completed in Nursing Notes</label>
+            <div class="row">
+              <label class="pill"><input type="radio" name="docDone" value="Yes" required /> Yes</label>
+              <label class="pill"><input type="radio" name="docDone" value="No" required /> No</label>
+            </div>
+          </div>
+          <div>
+            <label for="supervisor">Supervisor Name</label>
+            <input type="text" id="supervisor" name="supervisor" required />
+          </div>
+        </div>
+
+        <div style="margin-top:10px;">
+          <label for="remarks">Remarks (optional)</label>
+          <textarea id="remarks" name="remarks"></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="btns">
+          <button type="submit">Save (Local) + Show JSON</button>
+          <button type="button" class="secondary" id="exportBtn">Export All Records (JSON)</button>
+          <button type="button" class="secondary" id="clearBtn">Clear Local Records</button>
+        </div>
+
+        <div id="outBox" class="hidden" style="margin-top:12px;">
+          <h2>Latest Saved Record</h2>
+          <pre id="out"></pre>
+        </div>
+
+        <p class="muted">Records are saved on the phone/computer (local storage). Export weekly/monthly and share to Quality Cell.</p>
+      </div>
+
+    </form>
+  </div>
+
+  <script>
+    // -------- PWA: register service worker ----------
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js");
+    }
+
+    // -------- Bed numbers 1..33 ----------
+    const bedNo = document.getElementById("bedNo");
+    for (let i = 1; i <= 33; i++) {
+      const o = document.createElement("option");
+      o.value = String(i); o.textContent = String(i);
+      bedNo.appendChild(o);
+    }
+
+    const stages = ["Stage 1","Stage 2","Stage 3","Stage 4","Unstageable","Deep Tissue Injury (DTI)"];
+
+    const airReasonsBox = document.getElementById("airReasonsBox");
+    const repoReasonBox = document.getElementById("repoReasonBox");
+    const piDetails = document.getElementById("piDetails");
+    const firstMentionBox = document.getElementById("firstMentionBox");
+    const otherLocBox = document.getElementById("otherLocBox");
+    const stageArea = document.getElementById("stageArea");
+
+    const outBox = document.getElementById("outBox");
+    const out = document.getElementById("out");
+
+    const installBtn = document.getElementById("installBtn");
+    let deferredPrompt = null;
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = "inline-block";
+    });
+
+    installBtn.addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBtn.style.display = "none";
+    });
+
+    function qs(name){ return document.querySelector(`input[name="${name}"]:checked`); }
+    function qsa(name){ return [...document.querySelectorAll(`input[name="${name}"]:checked`)]; }
+
+    function rebuildStages() {
+      const locs = qsa("locations").map(x => x.value);
+      stageArea.innerHTML = "";
+      locs.forEach(loc => {
+        const wrap = document.createElement("div");
+        wrap.className = "card";
+        wrap.style.margin = "10px 0";
+        wrap.style.padding = "12px";
+
+        const label = document.createElement("label");
+        label.textContent = `Stage for: ${loc}`;
+        wrap.appendChild(label);
+
+        const sel = document.createElement("select");
+        sel.name = `stage_${loc}`;
+        sel.required = true;
+
+        const ph = document.createElement("option");
+        ph.value = ""; ph.textContent = "Select stage";
+        sel.appendChild(ph);
+
+        stages.forEach(s => {
+          const o = document.createElement("option");
+          o.value = s; o.textContent = s;
+          sel.appendChild(o);
+        });
+
+        wrap.appendChild(sel);
+        stageArea.appendChild(wrap);
+      });
+    }
+
+    document.addEventListener("change", (e) => {
+      if (e.target.name === "airMattress") {
+        airReasonsBox.classList.toggle("hidden", e.target.value !== "No");
+      }
+      if (e.target.name === "repositionDone") {
+        repoReasonBox.classList.toggle("hidden", e.target.value !== "No");
+      }
+      if (e.target.name === "piPresent") {
+        piDetails.classList.toggle("hidden", e.target.value !== "Yes");
+      }
+      if (e.target.name === "piOrigin") {
+        firstMentionBox.classList.toggle("hidden", e.target.value !== "Within Hospital");
+      }
+      if (e.target.name === "locations" && e.target.value === "Other") {
+        otherLocBox.classList.toggle("hidden", !e.target.checked);
+      }
+      if (e.target.name === "locations") {
+        rebuildStages();
+      }
+    });
+
+    function validateConditional() {
+      const am = qs("airMattress")?.value;
+      if (am === "No") {
+        const reasons = qsa("airReasons").map(x=>x.value);
+        if (reasons.length === 0) { alert("Air mattress is NO: select reason(s)."); return false; }
+        if (reasons.includes("Other") && !document.getElementById("airOther").value.trim()) {
+          alert("Air mattress reason 'Other' selected: please specify."); return false;
+        }
+      }
+      const rep = qs("repositionDone")?.value;
+      if (rep === "No" && !document.getElementById("repoReason").value.trim()) {
+        alert("Repositioning is NO: please specify reason."); return false;
+      }
+
+      const pi = qs("piPresent")?.value;
+      if (pi === "Yes") {
+        const origin = qs("piOrigin")?.value;
+        if (!origin) { alert("Select PI developed: Outside or Within hospital."); return false; }
+        if (origin === "Within Hospital" && !document.getElementById("firstMentionDate").value) {
+          alert("Within hospital: enter date of first mention."); return false;
+        }
+        const locs = qsa("locations").map(x=>x.value);
+        if (locs.length === 0) { alert("Select at least one location."); return false; }
+        if (locs.includes("Other") && !document.getElementById("otherLocation").value.trim()) {
+          alert("Other location selected: please specify."); return false;
+        }
+        for (const loc of locs) {
+          const sel = document.querySelector(`select[name="stage_${CSS.escape(loc)}"]`);
+          if (!sel || !sel.value) { alert(`Select stage for ${loc}`); return false; }
+        }
+      }
+      return true;
+    }
+
+    function makeRecord() {
+      const record = {
+        savedAt: new Date().toISOString(),
+        bedNo: bedNo.value,
+        admissionDate: document.getElementById("admissionDate").value,
+        bradenRisk: qs("bradenRisk")?.value || null,
+        prevention: {
+          airMattress: qs("airMattress")?.value || null,
+          airReasons: qsa("airReasons").map(x=>x.value),
+          airOther: document.getElementById("airOther").value.trim() || null,
+          repositionDone: qs("repositionDone")?.value || null,
+          repositionReason: document.getElementById("repoReason").value.trim() || null,
+          asPerSchedule: qs("asPerSchedule")?.value || null,
+          weightOffload: qs("weightOffload")?.value || null
+        },
+        piPresent: qs("piPresent")?.value || null,
+        pi: null,
+        documentationCompleted: qs("docDone")?.value || null,
+        supervisor: document.getElementById("supervisor").value.trim(),
+        remarks: document.getElementById("remarks").value.trim() || null
+      };
+
+      if (record.piPresent === "Yes") {
+        const origin = qs("piOrigin")?.value || null;
+        const locs = qsa("locations").map(x=>x.value);
+        const stageByLocation = {};
+        locs.forEach(loc => {
+          const sel = document.querySelector(`select[name="stage_${CSS.escape(loc)}"]`);
+          stageByLocation[loc] = sel ? sel.value : null;
+        });
+
+        record.pi = {
+          origin,
+          firstMentionDate: document.getElementById("firstMentionDate").value || null,
+          locations: locs,
+          otherLocation: document.getElementById("otherLocation").value.trim() || null,
+          stageByLocation
+        };
+      }
+      return record;
+    }
+
+    const STORAGE_KEY = "pi_daily_records_v1";
+
+    function readAll() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
+      catch { return []; }
+    }
+    function writeAll(arr) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+    }
+
+    document.getElementById("piForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!validateConditional()) return;
+
+      const rec = makeRecord();
+      const all = readAll();
+      all.push(rec);
+      writeAll(all);
+
+      out.textContent = JSON.stringify(rec, null, 2);
+      outBox.classList.remove("hidden");
+      alert("Saved locally ✅");
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    });
+
+    document.getElementById("exportBtn").addEventListener("click", () => {
+      const all = readAll();
+      if (all.length === 0) { alert("No records to export."); return; }
+      const blob = new Blob([JSON.stringify(all, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      const d = new Date().toISOString().slice(0,10);
+      a.download = `PI_records_${d}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      if (!confirm("Clear ALL locally saved records?")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      alert("Local records cleared.");
+    });
+  </script>
+</body>
+</html>
